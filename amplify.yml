@@ -1,10 +1,4 @@
 version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - '# Execute Amplify CLI with the helper script'
-        - amplifyPush --simple
 frontend:
   phases:
     preBuild:
@@ -12,7 +6,6 @@ frontend:
         - npm ci
     build:
       commands:
-        - echo "NEXT_PUBLIC_API_URL=$API_URL" >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
@@ -21,4 +14,15 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
-      - .next/cache/**/* 
+      - .next/cache/**/*
+  customHeaders:
+    - pattern: '**/*'
+      headers:
+        - key: 'Strict-Transport-Security'
+          value: 'max-age=31536000; includeSubDomains'
+        - key: 'X-Frame-Options'
+          value: 'SAMEORIGIN'
+        - key: 'X-XSS-Protection'
+          value: '1; mode=block'
+  buildPath: /
+  appRoot: / 

@@ -1,0 +1,9 @@
+{
+  "projectName": "Cardinal",
+  "framework": "next",
+  "packageManager": "npm",
+  "srcDir": "src",
+  "distDir": ".next",
+  "buildCommand": "npm run build",
+  "startCommand": "npm run start"
+} 
