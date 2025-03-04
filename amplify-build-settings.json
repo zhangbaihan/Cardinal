@@ -1,0 +1,14 @@
+{
+  "appRoot": ".",
+  "framework": "nextjs",
+  "srcDir": "src",
+  "distDir": ".next",
+  "buildCommand": "npm run build",
+  "startCommand": "npm run start",
+  "skipBuild": false,
+  "nextBuild": true,
+  "nextExport": false,
+  "environmentVariables": {
+    "SKIP_PREFLIGHT_CHECK": "true"
+  }
+} 
