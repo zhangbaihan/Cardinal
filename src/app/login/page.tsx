@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function Login() {
+// Component that uses useSearchParams
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [showSuccess, setShowSuccess] = useState(false);
@@ -122,5 +123,28 @@ export default function Login() {
         </p>
       </div>
     </div>
+  );
+}
+
+// Loading fallback
+function LoginLoading() {
+  return (
+    <div className="max-w-md mx-auto my-10 p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-bold text-center mb-6">Log In to Cardinal</h1>
+      <div className="animate-pulse">
+        <div className="h-10 bg-gray-200 rounded mb-4"></div>
+        <div className="h-10 bg-gray-200 rounded mb-4"></div>
+        <div className="h-10 bg-gray-200 rounded mb-6"></div>
+        <div className="h-12 bg-gray-300 rounded"></div>
+      </div>
+    </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <Suspense fallback={<LoginLoading />}>
+      <LoginContent />
+    </Suspense>
   );
 } 

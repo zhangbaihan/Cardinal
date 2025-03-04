@@ -14,7 +14,7 @@ interface SectionFields {
 
 export default function Survey() {
   const router = useRouter();
-  const [currentSection, setCurrentSection] = useState<number>(0);
+  const [currentSection, setCurrentSection] = useState<SectionType>(0);
   const [formData, setFormData] = useState({
     // Demographics & Admissions
     gender: '',
@@ -164,7 +164,10 @@ export default function Survey() {
     
     if (isComplete && currentSection < sections.length - 1) {
       console.log('Moving to next section');
-      setCurrentSection(prev => prev + 1);
+      setCurrentSection(prev => {
+        const next = prev + 1;
+        return next as SectionType;
+      });
       window.scrollTo(0, 0);
     } else {
       console.log('Cannot move to next section. Complete:', isComplete, 'Current section:', currentSection);
@@ -172,7 +175,10 @@ export default function Survey() {
   };
 
   const prevSection = () => {
-    setCurrentSection(prev => Math.max(0, prev - 1));
+    setCurrentSection(prev => {
+      const next = Math.max(0, prev - 1);
+      return next as SectionType;
+    });
     window.scrollTo(0, 0);
   };
 
@@ -206,7 +212,7 @@ export default function Survey() {
         </div>
         
         {/* Demographics & Admissions */}
-        {currentSection === 0 && (
+        {currentSection === 0 as SectionType && (
           <div>
             <h2 className="text-2xl font-semibold mb-4 text-cardinal-red">Demographics & Admissions</h2>
             
@@ -608,7 +614,7 @@ export default function Survey() {
         )}
         
         {/* Politics & Beliefs */}
-        {currentSection === 1 && (
+        {currentSection === 1 as SectionType && (
           <div>
             <h2 className="text-2xl font-semibold mb-4 text-cardinal-red">Politics & Beliefs</h2>
             
@@ -727,7 +733,7 @@ export default function Survey() {
                       ? 'bg-gray-500 hover:bg-gray-600 text-white'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
-                  disabled={currentSection === 0}
+                  disabled={currentSection === 0 as SectionType}
                 >
                   Previous Section
                 </button>
@@ -748,7 +754,7 @@ export default function Survey() {
         )}
         
         {/* Academics and Extracurriculars */}
-        {currentSection === 2 && (
+        {currentSection === 2 as SectionType && (
           <div>
             <h2 className="text-2xl font-semibold mb-4 text-cardinal-red">Academics and Extracurriculars</h2>
             
@@ -969,7 +975,7 @@ export default function Survey() {
                       ? 'bg-gray-500 hover:bg-gray-600 text-white'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
-                  disabled={currentSection === 0}
+                  disabled={currentSection === 0 as SectionType}
                 >
                   Previous Section
                 </button>
@@ -990,7 +996,7 @@ export default function Survey() {
         )}
         
         {/* Lifestyle */}
-        {currentSection === 3 && (
+        {currentSection === 3 as SectionType && (
           <div>
             <h2 className="text-2xl font-semibold mb-4 text-cardinal-red">Lifestyle</h2>
             
@@ -1107,7 +1113,7 @@ export default function Survey() {
                       ? 'bg-gray-500 hover:bg-gray-600 text-white'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
-                  disabled={currentSection === 0}
+                  disabled={currentSection === 0 as SectionType}
                 >
                   Previous Section
                 </button>

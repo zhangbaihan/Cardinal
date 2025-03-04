@@ -1,0 +1,36 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cardinalapp-dev-8b460-authRole",
+      "UnauthRoleArn": "arn:aws:iam::897729114392:role/amplify-cardinalapp-dev-8b460-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::897729114392:role/amplify-cardinalapp-dev-8b460-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-cardinalapp-dev-8b460-deployment",
+      "UnauthRoleName": "amplify-cardinalapp-dev-8b460-unauthRole",
+      "StackName": "amplify-cardinalapp-dev-8b460",
+      "StackId": "arn:aws:cloudformation:us-east-1:897729114392:stack/amplify-cardinalapp-dev-8b460/794a8f00-f93f-11ef-b9e2-0affe1a9f1ff",
+      "AmplifyAppId": "d32nmcl89qcj5u"
+    },
+    "categories": {
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "d32nmcl89qcj5u",
+          "type": "manual"
+        }
+      }
+    }
+  },
+  "env": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cardinalapp-env-97829-authRole",
+      "UnauthRoleArn": "arn:aws:iam::897729114392:role/amplify-cardinalapp-env-97829-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::897729114392:role/amplify-cardinalapp-env-97829-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-cardinalapp-env-97829-deployment",
+      "UnauthRoleName": "amplify-cardinalapp-env-97829-unauthRole",
+      "StackName": "amplify-cardinalapp-env-97829",
+      "StackId": "arn:aws:cloudformation:us-east-1:897729114392:stack/amplify-cardinalapp-env-97829/c0056690-f93f-11ef-b813-0affd864f6bb",
+      "AmplifyAppId": "d32nmcl89qcj5u"
+    }
+  }
+}

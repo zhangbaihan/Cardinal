@@ -8,6 +8,7 @@ Cardinal is a web application inspired by the Harvard Crimson's annual freshman 
 - Comprehensive survey covering demographics, politics, academics, and lifestyle
 - Interactive data visualizations and insights
 - Modern, responsive UI built with Next.js and Tailwind CSS
+- Serverless backend with AWS Lambda, API Gateway, DynamoDB, and Cognito
 
 ## Project Structure
 
@@ -24,7 +25,12 @@ Cardinal is a web application inspired by the Harvard Crimson's annual freshman 
 - `/src/lib`: Utility functions and helpers
   - `surveyData.ts`: Synthetic data generation and processing
   - `chartConfig.ts`: Chart.js configuration and setup
+  - `apiConfig.js`: Backend API configuration
+  - `apiService.js`: Frontend API service for backend communication
 - `/public`: Static assets including images
+- `/backend`: Serverless backend code (AWS SAM)
+  - `/src/functions`: Lambda function handlers
+  - `template.yaml`: Infrastructure as Code for AWS resources
 
 ### Key Files
 
@@ -33,6 +39,18 @@ Cardinal is a web application inspired by the Harvard Crimson's annual freshman 
 - `src/lib/surveyData.ts`: Generates 200 synthetic user responses for testing
 - `src/components/SurveyChart.tsx`: Reusable chart component that supports multiple chart types
 - `src/lib/chartConfig.ts`: Global Chart.js configuration with Stanford branding
+- `backend/template.yaml`: AWS SAM template defining backend infrastructure
+
+## Backend Architecture
+
+The application uses a serverless backend built with AWS services:
+
+- **AWS Lambda**: Serverless functions that handle API requests
+- **Amazon API Gateway**: RESTful API endpoints
+- **Amazon DynamoDB**: NoSQL database for storing survey responses and user data
+- **Amazon Cognito**: User authentication and authorization
+
+See the [backend README](./backend/README.md) for more details on the backend architecture and deployment.
 
 ## Temporary/Development Elements
 
@@ -46,18 +64,18 @@ The application currently uses synthetic data for development and testing purpos
   - Generates 200 random survey responses
   - Includes correlations between certain fields (e.g., income and financial aid)
   - Contains helper functions for data processing and chart preparation
-- **Future Plans**: Will be replaced with real database queries when the backend is fully implemented
+- **Future Plans**: Will be replaced with real database queries from the DynamoDB backend
 
 ### Authentication
 
 - Currently uses a placeholder login/register flow
-- Will be integrated with NextAuth.js for proper authentication
+- Will be integrated with Cognito for proper authentication
 
 ### Database Integration
 
-- Prisma is included in the dependencies but not fully implemented
-- The database schema needs to be created in a future update
-- Currently all data is generated on the client side
+- The backend is configured to use DynamoDB for data storage
+- Currently synthetic data is used on the frontend during development
+- Full integration will connect the frontend to the backend API
 
 ## Survey Structure
 
@@ -94,8 +112,11 @@ The dashboard displays interactive charts for all survey questions, organized by
 
 - Node.js 18.x or later
 - npm or yarn
+- AWS account (for backend deployment)
+- AWS CLI configured locally
+- AWS SAM CLI (for backend development)
 
-### Installation
+### Frontend Installation
 
 1. Clone this repository
 2. Install dependencies:
@@ -112,12 +133,31 @@ The dashboard displays interactive charts for all survey questions, organized by
    ```
 4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application
 
+### Backend Deployment
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+
+2. Install backend dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Deploy to AWS:
+   ```bash
+   npm run deploy
+   ```
+
+4. Update frontend environment variables with the outputs from the deployment
+
 ## Development Roadmap
 
 ### Immediate Next Steps
 
-1. Implement proper database integration with Prisma
-2. Set up NextAuth.js for authentication
+1. Connect frontend to the serverless backend
+2. Implement proper authentication with Cognito
 3. Create API endpoints for survey submission and data retrieval
 4. Add user profile management
 
@@ -135,122 +175,21 @@ This project uses:
 - Next.js for server-side rendering and routing
 - Tailwind CSS for styling
 - Chart.js for data visualizations
-- Prisma for database access (planned)
+- AWS SAM for serverless backend deployment
 
 ## Deployment
 
-The application can be deployed to platforms like Vercel or Netlify with minimal configuration.
+### Frontend Deployment
 
-## AWS Backend Integration
+The frontend can be deployed to platforms like Vercel or Netlify with minimal configuration.
 
-The Cardinal app is designed to be deployed on AWS, utilizing a serverless architecture for scalability and cost efficiency.
+### Backend Deployment
 
-### AWS Services Used
-
-- **AWS Amplify**: Full-stack deployment platform
-- **Amazon Cognito**: User authentication and authorization
-- **AWS AppSync**: GraphQL API service
-- **Amazon DynamoDB**: NoSQL database for storing survey data
-- **AWS Lambda**: Serverless functions for analytics
-- **Amazon S3**: Static file storage
-
-### Backend Structure
-
-1. **Authentication**: Amazon Cognito provides user pools for secure authentication
-2. **Database**: DynamoDB tables for `User` and `Survey` data
-3. **API Layer**: AppSync GraphQL API with secure resolvers
-4. **Analytics**: Lambda functions for data aggregation and correlation analysis
-
-### Deployment Instructions
-
-#### Prerequisites
-
-- AWS Account with appropriate permissions
-- AWS CLI installed and configured
-- AWS Amplify CLI installed (`npm install -g @aws-amplify/cli`)
-
-#### Step 1: Initialize Amplify
-
-```bash
-# Configure Amplify CLI
-amplify configure
-
-# Initialize Amplify in the project
-cd cardinal-app
-amplify init
-```
-
-Follow the prompts to configure your project:
-- Choose your AWS profile
-- Enter a name for your environment (e.g., `dev`)
-- Choose your default editor
-- Select your app type as `javascript`
-- Set the framework as `react`
-- Set the source directory path as `src`
-- Set the distribution directory path as `.next`
-- Set the build command as `npm run build`
-- Set the start command as `npm run start`
-
-#### Step 2: Add Authentication
-
-```bash
-amplify add auth
-```
-
-Choose the default configuration or customize based on your needs.
-
-#### Step 3: Add API
-
-```bash
-amplify add api
-```
-
-Choose GraphQL, and use the existing schema provided in the repository.
-
-#### Step 4: Add Lambda Functions
-
-```bash
-amplify add function
-```
-
-Name it `surveyAnalytics` and select Node.js for the runtime.
-
-#### Step 5: Push Configuration to AWS
-
-```bash
-amplify push
-```
-
-This will provision all the necessary resources in your AWS account.
-
-#### Step 6: Deploy the Application
-
-```bash
-amplify publish
-```
-
-This will build and deploy your application to AWS.
-
-### Environment Variables
-
-After deployment, Amplify will generate a set of environment variables that need to be added to your project. Create a `.env.local` file with the following (replace with actual values):
-
-```
-NEXT_PUBLIC_AWS_REGION=us-east-1
-NEXT_PUBLIC_API_ENDPOINT=https://example.appsync-api.us-east-1.amazonaws.com/graphql
-NEXT_PUBLIC_USER_POOL_ID=us-east-1_example
-NEXT_PUBLIC_USER_POOL_WEB_CLIENT_ID=example
-```
-
-### Testing Locally with AWS Backend
-
-To test the application locally with the AWS backend:
-
-```bash
-npm run dev
-```
-
-The application will connect to your AWS resources while running locally.
+The backend is deployed to AWS using the SAM CLI. The deployment process creates:
+- Lambda functions
+- API Gateway endpoints
+- DynamoDB tables
+- Cognito user pools
 
 ## License
 
