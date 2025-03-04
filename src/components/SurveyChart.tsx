@@ -14,7 +14,8 @@ import {
   ChartOptions
 } from 'chart.js';
 import { Bar, Pie, Doughnut } from 'react-chartjs-2';
-import { prepareChartData } from '@/lib/surveyData';
+import API from '@/lib/api';
+import { prepareChartData } from '@/lib/surveyData'; // Keep for fallback
 
 // Register Chart.js components
 ChartJS.register(
@@ -49,17 +50,61 @@ interface SurveyChartProps {
 
 export default function SurveyChart({ title, dataField, chartType = 'bar' }: SurveyChartProps) {
   const [chartData, setChartData] = useState<ChartData<'bar' | 'pie' | 'doughnut'> | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    // Prepare chart data based on the field
-    const data = prepareChartData(dataField, chartType);
-    setChartData(data);
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      
+      try {
+        // Try to get data from API
+        const apiData = await API.analytics.getChartData(dataField);
+        
+        if (apiData) {
+          setChartData(apiData);
+        } else {
+          // Fall back to synthetic data if API fails
+          console.log('Falling back to synthetic data for', dataField);
+          const syntheticData = prepareChartData(dataField, chartType);
+          setChartData(syntheticData);
+        }
+      } catch (err) {
+        console.error('Error fetching chart data:', err);
+        setError('Failed to load chart data');
+        
+        // Fall back to synthetic data
+        const syntheticData = prepareChartData(dataField, chartType);
+        setChartData(syntheticData);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchData();
   }, [dataField, chartType]);
+  
+  if (isLoading) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <p>Loading chart data...</p>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="h-full w-full flex items-center justify-center">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
   
   if (!chartData) {
     return (
       <div className="h-full w-full flex items-center justify-center">
-        <p>Loading chart data...</p>
+        <p>No data available for this chart</p>
       </div>
     );
   }

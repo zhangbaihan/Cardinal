@@ -141,6 +141,117 @@ This project uses:
 
 The application can be deployed to platforms like Vercel or Netlify with minimal configuration.
 
+## AWS Backend Integration
+
+The Cardinal app is designed to be deployed on AWS, utilizing a serverless architecture for scalability and cost efficiency.
+
+### AWS Services Used
+
+- **AWS Amplify**: Full-stack deployment platform
+- **Amazon Cognito**: User authentication and authorization
+- **AWS AppSync**: GraphQL API service
+- **Amazon DynamoDB**: NoSQL database for storing survey data
+- **AWS Lambda**: Serverless functions for analytics
+- **Amazon S3**: Static file storage
+
+### Backend Structure
+
+1. **Authentication**: Amazon Cognito provides user pools for secure authentication
+2. **Database**: DynamoDB tables for `User` and `Survey` data
+3. **API Layer**: AppSync GraphQL API with secure resolvers
+4. **Analytics**: Lambda functions for data aggregation and correlation analysis
+
+### Deployment Instructions
+
+#### Prerequisites
+
+- AWS Account with appropriate permissions
+- AWS CLI installed and configured
+- AWS Amplify CLI installed (`npm install -g @aws-amplify/cli`)
+
+#### Step 1: Initialize Amplify
+
+```bash
+# Configure Amplify CLI
+amplify configure
+
+# Initialize Amplify in the project
+cd cardinal-app
+amplify init
+```
+
+Follow the prompts to configure your project:
+- Choose your AWS profile
+- Enter a name for your environment (e.g., `dev`)
+- Choose your default editor
+- Select your app type as `javascript`
+- Set the framework as `react`
+- Set the source directory path as `src`
+- Set the distribution directory path as `.next`
+- Set the build command as `npm run build`
+- Set the start command as `npm run start`
+
+#### Step 2: Add Authentication
+
+```bash
+amplify add auth
+```
+
+Choose the default configuration or customize based on your needs.
+
+#### Step 3: Add API
+
+```bash
+amplify add api
+```
+
+Choose GraphQL, and use the existing schema provided in the repository.
+
+#### Step 4: Add Lambda Functions
+
+```bash
+amplify add function
+```
+
+Name it `surveyAnalytics` and select Node.js for the runtime.
+
+#### Step 5: Push Configuration to AWS
+
+```bash
+amplify push
+```
+
+This will provision all the necessary resources in your AWS account.
+
+#### Step 6: Deploy the Application
+
+```bash
+amplify publish
+```
+
+This will build and deploy your application to AWS.
+
+### Environment Variables
+
+After deployment, Amplify will generate a set of environment variables that need to be added to your project. Create a `.env.local` file with the following (replace with actual values):
+
+```
+NEXT_PUBLIC_AWS_REGION=us-east-1
+NEXT_PUBLIC_API_ENDPOINT=https://example.appsync-api.us-east-1.amazonaws.com/graphql
+NEXT_PUBLIC_USER_POOL_ID=us-east-1_example
+NEXT_PUBLIC_USER_POOL_WEB_CLIENT_ID=example
+```
+
+### Testing Locally with AWS Backend
+
+To test the application locally with the AWS backend:
+
+```bash
+npm run dev
+```
+
+The application will connect to your AWS resources while running locally.
+
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details. 
