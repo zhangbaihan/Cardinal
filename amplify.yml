@@ -1,9 +1,4 @@
 version: 1
-backend:
-  phases:
-    build:
-      commands:
-        - amplifyPush --simple
 frontend:
   phases:
     preBuild:
@@ -13,10 +8,9 @@ frontend:
       commands:
         - npm run build
   artifacts:
-    baseDirectory: .next
+    baseDirectory: out
     files:
       - '**/*'
   cache:
     paths:
-      - node_modules/**/*
-      - .next/cache/**/* 
+      - node_modules/**/* 

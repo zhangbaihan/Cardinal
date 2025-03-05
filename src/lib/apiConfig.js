@@ -4,8 +4,8 @@
  * In production, they will point to the deployed API Gateway URL.
  */
 
-// Base API URL - Replace with your deployed API Gateway URL in production
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+// Base API URL - Using the deployed API Gateway URL directly
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://epu96vaic4.execute-api.us-east-1.amazonaws.com/prod';
 
 // Auth endpoints
 export const AUTH_ENDPOINTS = {
@@ -24,6 +24,6 @@ export const SURVEY_ENDPOINTS = {
 // Cognito configuration
 export const COGNITO_CONFIG = {
   REGION: process.env.NEXT_PUBLIC_COGNITO_REGION || 'us-east-1',
-  USER_POOL_ID: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || '',
-  CLIENT_ID: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '',
+  USER_POOL_ID: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID || 'us-east-1_RgNy7JTgH',
+  CLIENT_ID: process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID || '7pv0p4l94go5j8dkdaik81ijk5',
 }; 

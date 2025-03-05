@@ -3,12 +3,15 @@
 import Link from 'next/link';
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Component that uses useSearchParams
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { login, isAuthenticated } = useAuth();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -23,6 +26,13 @@ function LoginContent() {
     }
   }, [searchParams]);
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value, checked, type } = e.target;
     setFormData((prev) => ({
@@ -31,14 +41,16 @@ function LoginContent() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
-    // In a real app, here you would authenticate the user
-    // For now, we'll simulate success and redirect to survey
-    
-    // Redirect to survey page
-    router.push('/survey');
+    try {
+      await login(formData.email, formData.password);
+      // Login successful, redirected by useEffect
+    } catch (err) {
+      setError('Invalid email or password. Please try again.');
+    }
   };
 
   return (
@@ -49,6 +61,14 @@ function LoginContent() {
         <div className="mb-6 text-center">
           <div className="p-3 bg-green-50 text-green-700 rounded-md mb-6">
             Account created successfully! Please log in with your credentials.
+          </div>
+        </div>
+      )}
+      
+      {error && (
+        <div className="mb-6 text-center">
+          <div className="p-3 bg-red-50 text-red-700 rounded-md mb-6">
+            {error}
           </div>
         </div>
       )}

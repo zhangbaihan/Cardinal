@@ -1,0 +1,204 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Cardinal Survey Backend - Stanford Community Survey Application
+Globals:
+  Function:
+    Timeout: 10
+    MemorySize: 128
+    Runtime: nodejs18.x
+    Architectures:
+    - x86_64
+    Environment:
+      Variables:
+        NODE_OPTIONS: --enable-source-maps
+        SURVEYS_TABLE:
+          Ref: SurveysTable
+        USERS_TABLE:
+          Ref: UsersTable
+Resources:
+  CardinalApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: '''GET,POST,PUT,DELETE,OPTIONS'''
+        AllowHeaders: '''Content-Type,Authorization'''
+        AllowOrigin: '''*'''
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn:
+              Fn::GetAtt:
+              - CardinalUserPool
+              - Arn
+  CardinalUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: CardinalUserPool
+      AutoVerifiedAttributes:
+      - email
+      UsernameAttributes:
+      - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+  CardinalUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId:
+        Ref: CardinalUserPool
+      ClientName: CardinalUserPoolClient
+      GenerateSecret: false
+      ExplicitAuthFlows:
+      - ALLOW_USER_PASSWORD_AUTH
+      - ALLOW_REFRESH_TOKEN_AUTH
+      - ALLOW_USER_SRP_AUTH
+  SurveysTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: CardinalSurveys
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: userId
+        AttributeType: S
+      - AttributeName: surveyId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: userId
+        KeyType: HASH
+      - AttributeName: surveyId
+        KeyType: RANGE
+      GlobalSecondaryIndexes:
+      - IndexName: SurveyIndex
+        KeySchema:
+        - AttributeName: surveyId
+          KeyType: HASH
+        Projection:
+          ProjectionType: ALL
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: CardinalUsers
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+      - AttributeName: userId
+        AttributeType: S
+      KeySchema:
+      - AttributeName: userId
+        KeyType: HASH
+  GetSurveyStatsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetSurveyStatsFunction
+      Handler: getSurveyStats.handler
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: SurveysTable
+      Events:
+        GetStats:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: CardinalApi
+            Path: /stats
+            Method: get
+            Auth:
+              Authorizer: NONE
+    Metadata:
+      SamResourceId: GetSurveyStatsFunction
+  SubmitSurveyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: SubmitSurveyFunction
+      Handler: submitSurvey.handler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: SurveysTable
+      Events:
+        SubmitSurvey:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: CardinalApi
+            Path: /survey
+            Method: post
+    Metadata:
+      SamResourceId: SubmitSurveyFunction
+  GetUserSurveyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: GetUserSurveyFunction
+      Handler: getUserSurvey.handler
+      Policies:
+      - DynamoDBReadPolicy:
+          TableName:
+            Ref: SurveysTable
+      Events:
+        GetUserSurvey:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: CardinalApi
+            Path: /survey/user
+            Method: get
+    Metadata:
+      SamResourceId: GetUserSurveyFunction
+  UserSignupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: UserSignupFunction
+      Handler: userSignup.handler
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTable
+      - Statement:
+          Effect: Allow
+          Action:
+          - cognito-idp:SignUp
+          - cognito-idp:AdminCreateUser
+          - cognito-idp:AdminConfirmSignUp
+          Resource:
+            Fn::GetAtt:
+            - CardinalUserPool
+            - Arn
+      Events:
+        UserSignup:
+          Type: Api
+          Properties:
+            RestApiId:
+              Ref: CardinalApi
+            Path: /auth/signup
+            Method: post
+            Auth:
+              Authorizer: NONE
+    Metadata:
+      SamResourceId: UserSignupFunction
+Outputs:
+  ApiEndpoint:
+    Description: API Gateway endpoint URL
+    Value:
+      Fn::Sub: https://${CardinalApi}.execute-api.${AWS::Region}.amazonaws.com/prod/
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value:
+      Ref: CardinalUserPool
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value:
+      Ref: CardinalUserPoolClient
+  SurveysTableName:
+    Description: DynamoDB Surveys Table Name
+    Value:
+      Ref: SurveysTable
+  Region:
+    Description: AWS Region
+    Value:
+      Ref: AWS::Region
